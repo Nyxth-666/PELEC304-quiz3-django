@@ -17,13 +17,13 @@ def home(request):
                 course=course,
             )
 
-        elif action == "remove":
+        elif action == "delete":
             student_id = request.POST.get("student_id")
 
-            Student.objects.filter(id=student_id).delete
+            Student.objects.filter(id=student_id).delete()
 
         elif action == "clear":
-            Student.objects.all().delete
+            Student.objects.all().delete()
 
         return redirect("home")
 
