@@ -1,51 +1,210 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Student List</title>
+    <title>Student Information</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'main/css/output.css' %}">
 </head>
-<body>
-    <h1 class="bg-gray-100 min-h-screen">Student Form</h1>
 
-    <form method="post">
-        {% csrf_token %}
+<body class="bg-background min-h-screen text-muted-text">
+    
+    <div class="max-w-3xl mx-auto px-6 py-10 flex flex-col">
 
-        <label>Name:</label>
-        <input type="text" name="name">
+        <h1 class="text-5xl font-bold mb-15 text-primary-dark italic self-center">
+            Student Record - Barotea
+        </h1>
 
-        <br><br>
+        <div class="flex flex-col gap-11 mb-10">
 
-        <label>Year & Section:</label>
-        <input type="text" name="year_section">
+            <h1 class="text-4xl font-bold mb-6 text-text self-center">
+                Student Form
+            </h1>
 
-        <br><br>
+            <form
+                method="post" 
+                class="flex flex-col gap-5"
+            >
+                {% csrf_token %}
 
-        <label>Course:</label>
-        <input type="text" name="course">
+                <input
+                    type="hidden"
+                    name="action"
+                    value="add"
+                >
 
-        <br><br>
+                <input
+                    type="text"
+                    name="name"
+                    placeholder="Name:"
+                    class="bg-white px-6 py-4 border-border border-2 rounded-xl outline-none focus:border-accent transition-colors duration-100"
+                >
 
-        <button type="submit">Add Student</button>
-    </form>
+                <input 
+                    type="text" 
+                    name="year_section" 
+                    placeholder="Year & Section:"
+                    class="bg-white px-6 py-4 border-border border-2 rounded-xl outline-none focus:border-accent transition-colors duration-100"
+                >
 
-    <br>
+                <input 
+                    type="text" 
+                    name="course" 
+                    placeholder="Course:"
+                    class="bg-white px-6 py-4 border-border border-2 rounded-xl outline-none focus:border-accent transition-colors duration-100"
+                >
 
-    <h2>Student List</h2>
+                <button
+                    type="submit"
+                    class="bg-secondary px-5 py-3 text-white border-secondary border-2 rounded-xl outline-none focus:opacity-90 focus:scale-97 transition-[opacity,transform] duration-100"
+                >
+                    Add Student
+                </button>
 
-    {% for student in students %}
+            </form>
 
-        <p>
-            <strong>Name:</strong> {{ student.name }} <br>
-            <strong>Year & Section:</strong> {{ student.year_section }} <br>
-            <strong>Course:</strong> {{ student.course }}
-        </p>
+        </div>
 
-        <hr>
+        <hr
+            class="mb-10 text-primary-dark border-2 rounded-xs"
+        >
 
-    {% endfor %}
+        <div
+            class="flex gap-5 justify-center mb-10"
+        >
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="action"
+                    value="delete"
+                >
+
+                <input
+                    type="hidden"
+                    name="student_id"
+                    id="selected-student-id"
+                >
+
+                <button
+                    type="submit"
+                    id="delete-button"
+                    disabled
+                    class="bg-error px-5 py-3 text-white border-error border-2 rounded-xl outline-none opacity-50 focus:opacity-90 focus:scale-97 transition-[opacity,transform] duration-100"
+                    onclick="return confirm('Confirm delete')"
+
+                >
+                    Delete Selected
+                </button>
+            </form>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="action"
+                    value="clear"
+                >
+
+                <button
+                    type="submit"
+                    class="bg-error px-5 py-3 text-white border-error border-2 rounded-xl outline-none focus:opacity-90 focus:scale-97 transition-[opacity,transform] duration-100"
+                    onclick="return confirm('Are you sure you want to delete all students?')"
+                >
+                    Clear All
+                </button>
+            </form>
+
+        </div>
+
+        <div
+            class="flex flex-col gap-10 mb-15"
+        >
+
+            <h1
+                class="text-4xl font-bold mb-6 text-text self-center"
+            >
+                Student List
+            </h1>
+
+            {% for student in students %}
+
+                <div 
+                    class="student-card cursor-pointer rounded-xl border border-border bg-card-background px-6 py-4 transition hover:border-primary"
+                    data-id="{{ student.id }}"
+                >
+
+                    <p>
+                        <span class="text-text font-bold">Name:</span>
+                        {{ student.name }}
+                    </p>
+
+                    <p>
+                        <span class="text-text font-bold">Year & Section:</span>
+                        {{ student.year_section }}
+                    </p>
+
+                    <p>
+                        <span class="text-text font-bold">Course:</span>
+                        {{ student.course }}
+                    </p>
+
+                </div>
+
+                <hr
+                    class="text-primary-dark border rounded-xs"
+                >
+
+            {% endfor %}
+
+        </div>
+    
+    </div>
+
+    <script>
+
+        const studentCards = document.querySelectorAll(".student-card");
+
+        const selectedStudentId = document.getElementById("selected-student-id");
+
+        const deleteButton = document.getElementById("delete-button");
+
+
+        studentCards.forEach(card => {
+
+            card.addEventListener("click", () => {
+
+                studentCards.forEach(card => {
+                    card.classList.remove("border-primary");
+                    card.classList.remove("ring-1");
+                    card.classList.remove("ring-primary");
+                });
+
+
+                card.classList.add("border-primary");
+                card.classList.add("ring-1");
+                card.classList.add("ring-primary");
+
+
+                const studentId = card.dataset.id;
+                selectedStudentId.value = studentId;
+
+
+                deleteButton.disabled = false;
+                deleteButton.classList.remove("opacity-50");
+
+            });
+
+        });
+
+    </script>
 </body>
 </html>
