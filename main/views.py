@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from . models import Student
+import re
 
 def home(request):
     if request.method == "POST":
@@ -7,15 +8,33 @@ def home(request):
         action = request.POST.get("action")
 
         if action == "add":
-            name = request.POST.get("name")
-            year_section = request.POST.get("year_section")
-            course = request.POST.get("course")
+            name = request.POST.get("name", "").strip()
+            year_section = request.POST.get("year_section", "").strip()
+            course = request.POST.get("course", "").strip()
+
+            if not name or not year_section or not course:
+                error = "All fields are required."
+
+                students = Student.objects.all()
+
+                return render(request, "main/home.html", {
+                    "students": students,
+                    "error": error,
+                })
 
             Student.objects.create(
                 name=name,
                 year_section=year_section,
                 course=course,
             )
+
+            if not re.match(r"^[1-4][A-Za-z]$", year_section):
+                students = Student.objects.all()
+
+                return render(request, "main/home.html", {
+                    "students": students,
+                    "error": "Year & Section must be a valid data.",
+                })
 
         elif action == "delete":
             student_id = request.POST.get("student_id")
@@ -30,5 +49,5 @@ def home(request):
     students = Student.objects.all()
 
     return render(request, "main/home.html", {
-        "students":students
+        "students": students,
     })
