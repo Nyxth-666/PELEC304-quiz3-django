@@ -13,20 +13,12 @@ def home(request):
             course = request.POST.get("course", "").strip()
 
             if not name or not year_section or not course:
-                error = "All fields are required."
-
                 students = Student.objects.all()
 
                 return render(request, "main/home.html", {
                     "students": students,
-                    "error": error,
+                    "error": "All fields are required.",
                 })
-
-            Student.objects.create(
-                name=name,
-                year_section=year_section,
-                course=course,
-            )
 
             if not re.match(r"^[1-4][A-Za-z]$", year_section):
                 students = Student.objects.all()
@@ -35,6 +27,12 @@ def home(request):
                     "students": students,
                     "error": "Year & Section must be a valid data.",
                 })
+
+            Student.objects.create(
+                name=name,
+                year_section=year_section,
+                course=course,
+            )
 
         elif action == "delete":
             student_id = request.POST.get("student_id")
